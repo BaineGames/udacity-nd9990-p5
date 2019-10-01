@@ -22,6 +22,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:Scan
+        - dynamodb:PutItem
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
 functions:
@@ -30,6 +31,14 @@ functions:
     events:
       - http:
           method: get
+          path: todos
+          cors: true
+
+  CreateTodo:
+    handler: src/lambda/http/createTodo.handler
+    events:
+      - http:
+          method: post
           path: todos
           cors: true
 
