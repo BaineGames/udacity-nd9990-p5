@@ -17,7 +17,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     
     const result = await docClient.query({
         TableName : todosTable,
-        IndexName : "UserIdIndex",
+        IndexName: "UserIdIndex",
         KeyConditionExpression: 'userId = :userId',
         ExpressionAttributeValues: {
             ':userId': userId

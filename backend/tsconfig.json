@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2017"],
+    "lib": [
+      "es2017"
+    ],
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -8,5 +10,7 @@
     "target": "es2017",
     "outDir": "lib"
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

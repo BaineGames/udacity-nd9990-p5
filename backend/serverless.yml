@@ -1,35 +1,40 @@
 service:
-  name: udacity-todo-app
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
+  name: ross-serverless-todo-app
 
-# Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
-  - serverless-aws-documentation
-  - serverless-reqvalidator-plugin
+  - serverless-iam-roles-per-function
 
 provider:
   name: aws
   runtime: nodejs10.x
-  
+
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-west-1'}
 
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
+    AUTH_0_SECRET: z2JvJFPCw4F2SljDrRt2tQQIy9e3MArsWEYFv2MVpyTjO4b5DVjXhHqfewYvvjvg
+
 
   iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - dynamodb:Scan
-        - dynamodb:PutItem
-        - dynamodb:DeleteItem
-        - dynamodb:Query
-      Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+  - Effect: Allow
+    Action:
+      - dynamodb:Scan
+      - dynamodb:PutItem
+      - dynamodb:DeleteItem
+      - dynamodb:Query
+    Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+  - Effect: Allow
+    Action:
+      - dynamodb:Query
+    Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/UserIdIndex
 
 functions:
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
+
+  # TODO: Configure this function
   GetTodos:
     handler: src/lambda/http/getTodos.handler
     events:
@@ -37,15 +42,8 @@ functions:
           method: get
           path: todos
           cors: true
-  
-  DeleteTodo:
-    handler: src/lambda/http/deleteTodo.handler
-    events:
-      - http:
-          method: delete
-          path: todos/{todoId}
-          cors: true
 
+  # TODO: Configure this function
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -53,45 +51,51 @@ functions:
           method: post
           path: todos
           cors: true
-          reqValidatorName: RequestBodyValidator
-          documentation:
-            summary: Create a new todo
-            description: Create a new todo
-            requestModels:
-              'application/json': TodoRequest
 
-custom:
-  documentation:
-    api:
-      info:
-        version: v1.0.0
-        title: Udacity TODO List API
-        description: Serverless application for todo listing for Udacity cloud developer project
-    models:
-      - name: TodoRequest
-        contentType: application/json
-        schema: ${file(models/create-todo-request.json)}
+  # TODO: Configure this function
+  UpdateTodo:
+    handler: src/lambda/http/updateTodo.handler
+    events:
+      - http:
+          method: patch
+          path: todos/{todoId}
+
+  # TODO: Configure this function
+  DeleteTodo:
+    handler: src/lambda/http/deleteTodo.handler
+    events:
+      - http:
+          method: delete
+          path: todos/{todoId}
+
+  # # TODO: Configure this function
+  # GenerateUploadUrl:
+  #   handler: src/lambda/http/generateUploadUrl.handler
+  #   events:
+  #     - http:
+  #         method: post
+  #         path: todos/{todoId}/attachment
 
 resources:
   Resources:
-
-    RequestBodyValidator:
-      Type: AWS::ApiGateway::RequestValidator
-      Properties:
-        Name: 'request-body-validator'
-        RestApiId:
-          Ref: ApiGatewayRestApi
-        ValidateRequestBody: true
-        ValidateRequestParameters: false
-
-    TodosDyanmoDBTable:
+    # TODO: Add any necessary AWS resources
+    TodosDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: UserIdIndex
+            KeySchema:
+            - AttributeName: userId
+              KeyType: HASH
+            Projection:
+              ProjectionType: ALL
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODOS_TABLE}
