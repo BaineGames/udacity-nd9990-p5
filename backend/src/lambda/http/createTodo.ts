@@ -23,7 +23,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     console.log("test",token)
 
     const newTodo = {
-        id: todoId,
+      todoId: todoId,
         userId: parseUserId(token),
         ...parsedBody
     }

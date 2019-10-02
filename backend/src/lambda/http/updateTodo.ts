@@ -20,7 +20,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const token = authSplit[1]
 
   const newTodo = {
-    id: todoId,
+    todoId: todoId,
     userId: parseUserId(token),
     ...updatedTodo
   }
