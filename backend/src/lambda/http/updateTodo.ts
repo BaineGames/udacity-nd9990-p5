@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
 import * as AWS from 'aws-sdk'
 import 'source-map-support/register'
-import { parseUserId } from '../../auth/utils'
+//import { parseUserId } from '../../auth/utils'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
 
 
@@ -15,20 +15,26 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
   // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
 
-  const authHeader = event.headers.Authorization
-  const authSplit = authHeader.split(" ")
-  const token = authSplit[1]
+  //const authHeader = event.headers.Authorization
+  //const authSplit = authHeader.split(" ")
+  //const token = authSplit[1]
 
-  const newTodo = {
-    todoId: todoId,
-    userId: parseUserId(token),
-    ...updatedTodo
+  const updateTodoParams = {
+    TableName: todosTable,
+    Key: { "todoId": todoId },
+    UpdateExpression: "set #n = :a, dueDate = :b, done = :c",
+    ExpressionAttributeValues:{
+      ":a": updatedTodo['name'],
+      ":b": updatedTodo.dueDate,
+      ":c": updatedTodo.done
+    },
+    ExpressionAttributeNames:{
+      "#n": "name"
+    },
+    ReturnValues:"UPDATED_NEW"
   }
 
-await docClient.put({
-    TableName: todosTable,
-    Item: newTodo
-}).promise()
+const runthis = await docClient.update(updateTodoParams).promise()
 
 return {
     statusCode: 201,
@@ -36,7 +42,7 @@ return {
         'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
-        newTodo
+      runthis
     })
 }
 }
