@@ -18,25 +18,6 @@ provider:
     S3_BUCKET: ross-serverless-todo-s3-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
 
-
-  # iamRoleStatements:
-  # - Effect: Allow
-  #   Action:
-  #     - dynamodb:PutItem
-  #     - dynamodb:DeleteItem
-  #     - dynamodb:Query
-  #     - dynamodb:UpdateItem
-  #   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
-  # - Effect: Allow
-  #   Action:
-  #     - dynamodb:Query
-  #   Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}/index/UserIdIndex
-  # - Effect: Allow
-  #   Action:
-  #     - s3:PutObject
-  #     - s3:GetObject
-  #   Resource: arn:aws:s3:::${self:provider.environment.S3_BUCKET}/*
-
 functions:
   Auth:
     handler: src/lambda/auth/auth0Authorizer.handler
